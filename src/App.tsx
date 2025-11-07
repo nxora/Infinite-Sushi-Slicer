@@ -1,33 +1,72 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styles from "./App.module.css";
 
+const INITIAL_SLICE_COUNT = 6;
+const REMOVE_ANIMATION_DURATION = 500;
+const ADD_ANIMATION_DURATION = 500;
+const MAX_SLICES = 10;
+
+interface Slice {
+  id: string;
+  state: "" | "removing" | "adding";
+}
+
 export default function App() {
-  const [slices, setSlices] = useState(
-    Array(6).fill({ id: Math.random(), state: "" })
+  const [slices, setSlices] = useState<Slice[]>(
+    Array.from({ length: INITIAL_SLICE_COUNT }, () => ({
+      id: crypto.randomUUID(),
+      state: "",
+    }))
   );
 
-  const [_animating, setAnimating] = useState(false);
+  const [animating, setAnimating] = useState(false);
 
-  const handleSliceClick = (index: number) => {
-    setAnimating(true);
+  useEffect(() => {
+    return () => {
+      let id = window.setTimeout(() => {}, 0);
+      while (id--) window.clearTimeout(id);
+    };
+  }, []);
 
-    const updatedSlices = slices.map((slice, i) =>
-      i === index ? { ...slice, state: "removing" } : slice
-    );
-    setSlices(updatedSlices);
-
-    setTimeout(() => {
-      setSlices((current) => current.filter((_, i) => i !== index));
-      addSlice();
-    }, 500);
+  const randomColor = () => {
+    const hue = Math.floor(Math.random() * 360);
+    return `hsl(${hue}, 70%, 80%)`;
   };
 
-  const addSlice = () => {
-    setSlices((currentSlices) => [
-      ...currentSlices,
-      { id: Math.random(), state: "adding" },
-    ]);
+  const changeBackground = () => {
+    document.body.style.transition = "background 0.5s ease";
+    document.body.style.background = randomColor();
+  };
+
+  const handleSliceClick = useCallback(
+    (index: number) => {
+      if (animating) return;
+      setAnimating(true);
+
+      changeBackground(); // ✅ Bonus feature!
+
+      const updatedSlices = slices.map((slice, i) =>
+        i === index ? { ...slice, state: "removing" } : slice
+      );
+      setSlices(updatedSlices);
+
+      setTimeout(() => {
+        setSlices((current) => current.filter((_, i) => i !== index));
+        addSlice();
+      }, REMOVE_ANIMATION_DURATION);
+    },
+    [animating, slices]
+  );
+
+  const addSlice = useCallback(() => {
+    setSlices((currentSlices) => {
+      if (currentSlices.length >= MAX_SLICES) return currentSlices;
+      return [
+        ...currentSlices,
+        { id: crypto.randomUUID(), state: "adding" },
+      ];
+    });
 
     setTimeout(() => {
       setSlices((currentSlices) =>
@@ -36,8 +75,8 @@ export default function App() {
         )
       );
       setAnimating(false);
-    }, 500);
-  };
+    }, ADD_ANIMATION_DURATION);
+  }, []);
 
   return (
     <div className={styles.roll}>
@@ -45,7 +84,15 @@ export default function App() {
         <div
           key={slice.id}
           className={`${styles.slice} ${styles[slice.state]}`}
+          role="button"
+          tabIndex={0}
+          aria-label={`Slice number ${index + 1}`}
           onClick={() => handleSliceClick(index)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handleSliceClick(index);
+            }
+          }}
         ></div>
       ))}
     </div>

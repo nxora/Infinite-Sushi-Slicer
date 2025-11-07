@@ -1,6 +1,6 @@
 # 🍣 Infinite Sushi Slider
 
-The Infinite Sushi Slider is a fun, interactive app that lets you play with a never-ending sushi roll. Click on a slice to remove it, and watch as a new one appears, keeping the sushi roll infinite. This project was created just for fun and because I had a craving for sushi!
+The Infinite Sushi Slider is a fun, interactive app that lets you play with a never-ending sushi roll. Click on a slice to remove it, and watch as a new one appears with a new background, keeping the sushi roll infinite. This project was created just for fun and because I had a craving for sushi!
 
 Live: https://infinite-sushi-slicer.vercel.app
 
@@ -20,5 +20,5 @@ To run the project in your local environment, follow these steps:
 
 ## 🎬 Video
 
-https://github.com/mirayatech/Infinite-Sushi-Slicer/assets/71933266/e84b4c30-c758-4986-b026-21345382fcf3
+![video](./public/sushi-new.mp4)
 
